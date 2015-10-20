@@ -1,0 +1,57 @@
+﻿[PyScripter]
+Version=2.4.1.0
+
+[Project]
+ClassName=TProjectRootNode
+StoreRelativePaths=FALSE
+ShowFileExtensions=FALSE
+
+[Project\ChildNodes\Node0]
+ClassName=TProjectFilesNode
+
+[Project\ChildNodes\Node0\ChildNodes\Node0]
+ClassName=TProjectFileNode
+FileName=D:\PROJETS\vdr_channels-tools\update-vdr-channels.py
+
+[Project\ChildNodes\Node0\ChildNodes\Node1]
+ClassName=TProjectFileNode
+FileName=D:\PROJETS\vdr_channels-tools\update-vdr-channels-for-xmltv2vdr.py
+
+[Project\ChildNodes\Node0\ChildNodes]
+Count=2
+
+[Project\ChildNodes\Node1]
+ClassName=TProjectRunConfiguationsNode
+
+[Project\ChildNodes\Node1\ChildNodes\Node0]
+ClassName=TProjectRunConfiguationNode
+Name=runxmltv
+
+[Project\ChildNodes\Node1\ChildNodes\Node0\RunConfig]
+ScriptName=D:\PROJETS\vdr_channels-tools\update-vdr-channels-for-xmltv2vdr.py
+EngineType=peRemote
+ReinitializeBeforeRun=TRUE
+Parameters=-c test\channels.conf -x test\xmltv.xml -o test\channel_results.conf
+WorkingDir=$[ActiveScript-Dir]
+WriteOutputToFile=FALSE
+OutputFileName=$[ActiveScript-NoExt].log
+AppendToFile=FALSE
+
+[Project\ChildNodes\Node1\ChildNodes\Node0\RunConfig\ExternalRun]
+Caption=External Run
+Description=Run script using an external Python Interpreter
+ApplicationName=$[PythonExe-Short]
+Parameters=$[ActiveScript-Short]
+WorkingDirectory=$[ActiveScript-Dir]
+ShortCut=0
+MessagesFormat=$[FileName] $[LineNumber]
+
+[Project\ChildNodes\Node1\ChildNodes]
+Count=1
+
+[Project\ChildNodes]
+Count=2
+
+[Project\ExtraPythonPath]
+Count=0
+
