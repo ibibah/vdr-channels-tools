@@ -105,8 +105,8 @@ def process(srcref, srcScan): #, dst):
     Chan = Channels(refLigne)
     if Chan.isOk():
         ChannelsRefList.append(Chan)
-    else:
-        print "rejet de la ligne " + refLigne
+    #else:
+    #    print "rejet de la ligne " + refLigne
 
   # lecture de la sortie KingOfSat
   outputKos = os.popen("python get-canalsat-channels-king-of-sat.py --list 19.2E --bouquet CanalSat", "r").read()
@@ -115,8 +115,8 @@ def process(srcref, srcScan): #, dst):
     Chan = Channels(kofLigne)
     if Chan.isOk():
         ChannelsCSatKingOfSatList.append(Chan)
-    else:
-        print "rejet de la ligne " + kofLigne
+    #else:
+    #    print "rejet de la ligne " + kofLigne
 
   #pour chaque ligne du fichier source
   for chaRef in ChannelsRefList:
@@ -124,57 +124,73 @@ def process(srcref, srcScan): #, dst):
     # si le fichier scan a au moins une ref de la chaine
     results_scan = [ x for x in ChannelsScanList if x.IsSameChannelWithNameAndDVBS(chaRef) == True ]
 
-
     # recherche des reference dans kingofsat
     results_kof = [ x for x in ChannelsCSatKingOfSatList if x.IsSameChannelWithFreqAndSID(chaRef) == True ]
 
-    message = chaRef.name
+    # creation des variables contenant le message
+    messageheader = 'ref   :' + chaRef.__str__()
+    message = ""
+    idemScan = False
+    idemKof = False
 
+    # 1 correspondance dans le scan
     if len(results_scan) == 1:
 
-      # on compare les chaines
-      if not(results_scan[0] != chaRef):
-        message +=  + ' modifie dans la fichier scan'
-        message += '\nref ' + chaRef.__str__()
-        message += '\n->  ' + results_scan[0].__str__()
+      # si les chaines sont differentes
+      if not(results_scan[0] == chaRef):
+        message += ' scan :' + results_scan[0].__str__() + ' ( update from scan ?)'
       else:
-        message += '\nidentique au fichier scan. '
-
+      # les chaines sont identiques
+        idemScan = True
+        messageheader += '  ( idem scan )'
+    
+    # plusieurs correspondances dans le scan
     elif len(results_scan) > 1:
       correspondance = ""
       for c in results_scan:
         if not(c == chaRef):
-            correspondance += '\nscan :' + c.__str__()
+            if correspondance != "":
+		correspondance += '\n'
+            correspondance += ' scan :' + c.__str__()
 
       if correspondance != "":
-         message += ' a plusieurs autres correpondance dans scan :'
-         message += '\nref  :' + chaRef.__str__()
+         messageheader += ' ( multiples scan)'
          message += correspondance
 
-
-    if len(results_kof) == 1:
-         if not(results_kof[0] != chaRef):
-            message += '\nkof->' + c.__str__()
-         else:
-            message+= '\nidentique a king of sat'
+    if len(results_kof) == 0:
+        messageheader += '(not found in kof !!)'
+    # 1 correspondance dans kof
+    elif len(results_kof) == 1:
+        # les chaines sont differentes
+	if not( results_kof[0] == chaRef ):
+		message += ' kof  :' + results_kof[0].__str__() + ' ( update from kof ?)'
+        # les chaines sont egales
+        else:
+      		idemKof = True
+                messageheader += ' ( idem kof )'
+    # plusieurs correspondances dans kof
     elif len(results_kof) > 1:
         correspondance = ""
         for c in results_kof:
             if not(c == chaRef):
-                correspondance += '\nkof :' + c.__str__()
+	        if correspondance != "":
+			correspondance += '\n'
+                correspondance += '\n kof  :' + c.__str__()
 
         if correspondance != "":
-             message += ' a plusieurs autres correpondance dans king of sat :'
-             message += '\nref  :' + chaRef.__str__()
+             message += ' (multiples kof ??? bizarre)'
              message += correspondance
 
-    print message
+    if ( idemKof == False ):
+    	print messageheader
+    	if message != "": 
+    		print message
 
   # affichage de toutes les chaines qui ne sont pas dans le fichier de reference mais dans king of sat et dans le scan
   newChannels = [item for item in ChannelsScanList if ( (item not in ChannelsRefList) and (item in ChannelsCSatKingOfSatList) and (item in ChannelsScanList ) )]
 
   for c in newChannels:
-    print 'new  :' + c.__str__()
+    print 'new   :' + c.__str__()
 
 if ( __name__ == "__main__"):
   parser = argparse.ArgumentParser(description='maj de channel.conf avec un channels.conf issue de wscan')
